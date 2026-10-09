@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'library_screen.dart';
+import 'status_lists_screen.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
@@ -17,6 +18,14 @@ class HomeScreen extends StatelessWidget {
               MaterialPageRoute(builder: (_) => const LibraryScreen()),
             ),
             child: const Text('Моя библиотека'),
+          ),
+          const SizedBox(height: 8),
+          FilledButton(
+            onPressed: () => Navigator.push(
+              context,
+              MaterialPageRoute(builder: (_) => const StatusListsScreen()),
+            ),
+            child: const Text('Мои списки'),
           ),
         ],
       ),
