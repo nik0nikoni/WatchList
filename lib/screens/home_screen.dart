@@ -4,6 +4,7 @@ import '../widgets/continue_card.dart';
 import '../widgets/nav_tile.dart';
 import '../widgets/stat_tile.dart';
 import '../widgets/title_card.dart';
+import 'details_screen.dart';
 import 'library_screen.dart';
 import 'status_lists_screen.dart';
 
@@ -76,8 +77,11 @@ class HomeScreen extends StatelessWidget {
               scrollDirection: Axis.horizontal,
               itemCount: watching.length,
               separatorBuilder: (_, __) => const SizedBox(width: 12),
-              itemBuilder: (context, index) =>
-                  ContinueCard(entry: watching[index]),
+              itemBuilder: (context, index) => ContinueCard(
+                entry: watching[index],
+                onTap: () =>
+                    _open(context, DetailsScreen(entry: watching[index])),
+              ),
             ),
           ),
           const SizedBox(height: 24),
@@ -107,7 +111,10 @@ class HomeScreen extends StatelessWidget {
           Text('Недавно добавлено', style: theme.textTheme.titleLarge),
           const SizedBox(height: 12),
           for (final entry in recent) ...[
-            TitleCard(entry: entry),
+            TitleCard(
+              entry: entry,
+              onTap: () => _open(context, DetailsScreen(entry: entry)),
+            ),
             const SizedBox(height: 8),
           ],
         ],

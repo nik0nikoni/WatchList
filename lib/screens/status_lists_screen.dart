@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../data/mock_data.dart';
 import '../widgets/title_card.dart';
+import 'details_screen.dart';
 
 class StatusListsScreen extends StatelessWidget {
   const StatusListsScreen({super.key});
@@ -31,8 +32,15 @@ class StatusListsScreen extends StatelessWidget {
               padding: const EdgeInsets.all(16),
               itemCount: items.length,
               separatorBuilder: (_, __) => const SizedBox(height: 8),
-              itemBuilder: (context, index) =>
-                  TitleCard(entry: items[index]),
+              itemBuilder: (context, index) => TitleCard(
+                entry: items[index],
+                onTap: () => Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => DetailsScreen(entry: items[index]),
+                  ),
+                ),
+              ),
             );
           }).toList(),
         ),
