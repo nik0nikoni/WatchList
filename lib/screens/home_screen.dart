@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'library_screen.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
@@ -7,7 +8,18 @@ class HomeScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text('WatchList')),
-      body: const Center(child: Text('Скоро здесь будут экраны')),
+      body: ListView(
+        padding: const EdgeInsets.all(16),
+        children: [
+          FilledButton(
+            onPressed: () => Navigator.push(
+              context,
+              MaterialPageRoute(builder: (_) => const LibraryScreen()),
+            ),
+            child: const Text('Моя библиотека'),
+          ),
+        ],
+      ),
     );
   }
 }
