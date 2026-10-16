@@ -7,6 +7,7 @@ import '../widgets/title_card.dart';
 import 'details_screen.dart';
 import 'library_screen.dart';
 import 'status_lists_screen.dart';
+import 'add_entry_screen.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
@@ -104,6 +105,11 @@ class HomeScreen extends StatelessWidget {
                 icon: Icons.checklist_rounded,
                 label: 'Мои списки',
                 onTap: () => _open(context, const StatusListsScreen()),
+              ),
+              NavTile(
+                icon: Icons.add_circle_outline,
+                label: 'Добавить',
+                onTap: () => _open(context, const AddEntryScreen()),
               ),
             ],
           ),
