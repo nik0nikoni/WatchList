@@ -1,7 +1,8 @@
+import 'details_screen.dart';
 import 'package:flutter/material.dart';
 import '../data/mock_data.dart';
 import '../widgets/title_card.dart';
-import 'details_screen.dart';
+
 
 class LibraryScreen extends StatelessWidget {
   const LibraryScreen({super.key});
@@ -40,8 +41,15 @@ class LibraryScreen extends StatelessWidget {
               padding: const EdgeInsets.all(16),
               itemCount: mockEntries.length,
               separatorBuilder: (_, __) => const SizedBox(height: 8),
-              itemBuilder: (context, index) =>
-                  TitleCard(entry: mockEntries[index]),
+              itemBuilder: (context, index) => TitleCard(
+                entry: mockEntries[index],
+                onTap: () => Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => DetailsScreen(entry: mockEntries[index]),
+                  ),
+                ),
+              ),
             ),
           ),
         ],
