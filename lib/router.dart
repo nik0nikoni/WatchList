@@ -34,6 +34,13 @@ final router = GoRouter(
       },
     ),
     GoRoute(
+      path: '/library/:id/edit', // та же форма, но для существующей записи
+      builder: (context, state) {
+        final id = int.parse(state.pathParameters['id']!);
+        return AddEntryScreen(id: id);
+      },
+    ),
+    GoRoute(
       path: '/lists',
       builder: (context, state) => const StatusListsScreen(),
     ),

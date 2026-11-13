@@ -3,14 +3,18 @@ import 'package:go_router/go_router.dart';
 import '../data/mock_data.dart';
 
 class AddEntryScreen extends StatelessWidget {
-  const AddEntryScreen({super.key});
+  final int? id; // null — новая запись, иначе — редактирование записи с этим id
+
+  const AddEntryScreen({super.key, this.id});
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Новая запись')),
+      appBar: AppBar(
+        title: Text(id == null ? 'Новая запись' : 'Редактирование'),
+      ),
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [

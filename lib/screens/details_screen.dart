@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import '../data/mock_data.dart';
 import '../widgets/info_row.dart';
 import '../widgets/poster_placeholder.dart';
@@ -136,7 +137,7 @@ class DetailsScreen extends StatelessWidget {
           ],
           const SizedBox(height: 24),
           FilledButton.icon(
-            onPressed: () {},
+            onPressed: () => context.push('/library/$id/edit'), // зайду и вернусь
             icon: const Icon(Icons.edit_outlined),
             label: const Text('Редактировать запись'),
           ),
