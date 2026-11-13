@@ -20,7 +20,6 @@ extension WatchStatusLabel on WatchStatus {
       };
 }
 
-
 class MediaTitle {
   final String name;
   final TitleType type;
@@ -40,6 +39,7 @@ class MediaTitle {
 }
 
 class WatchEntry {
+  final int id; // идентичность, которая путешествует в адресе: /library/3
   final MediaTitle media;
   final WatchStatus status;
   final int? myRating; // 1-10
@@ -47,6 +47,7 @@ class WatchEntry {
   final String note;
 
   const WatchEntry({
+    required this.id,
     required this.media,
     required this.status,
     this.myRating,
@@ -57,6 +58,7 @@ class WatchEntry {
 
 const mockEntries = [
   WatchEntry(
+    id: 1,
     media: MediaTitle(
       name: 'Начало',
       type: TitleType.movie,
@@ -71,6 +73,7 @@ const mockEntries = [
     note: 'Пересмотреть в оригинале',
   ),
   WatchEntry(
+    id: 2,
     media: MediaTitle(
       name: 'Во все тяжкие',
       type: TitleType.series,
@@ -84,6 +87,7 @@ const mockEntries = [
     watchedEpisodes: 41,
   ),
   WatchEntry(
+    id: 3,
     media: MediaTitle(
       name: 'Атака титанов',
       type: TitleType.anime,
@@ -97,6 +101,7 @@ const mockEntries = [
     watchedEpisodes: 59,
   ),
   WatchEntry(
+    id: 4,
     media: MediaTitle(
       name: 'Стальной алхимик: Братство',
       type: TitleType.anime,
@@ -110,6 +115,7 @@ const mockEntries = [
     watchedEpisodes: 64,
   ),
   WatchEntry(
+    id: 5,
     media: MediaTitle(
       name: 'Интерстеллар',
       type: TitleType.movie,
@@ -121,6 +127,7 @@ const mockEntries = [
     status: WatchStatus.planned,
   ),
   WatchEntry(
+    id: 6,
     media: MediaTitle(
       name: 'Тьма',
       type: TitleType.series,
@@ -132,6 +139,7 @@ const mockEntries = [
     status: WatchStatus.planned,
   ),
   WatchEntry(
+    id: 7,
     media: MediaTitle(
       name: 'Унесённые призраками',
       type: TitleType.anime,
@@ -145,6 +153,7 @@ const mockEntries = [
     watchedEpisodes: 1,
   ),
   WatchEntry(
+    id: 8,
     media: MediaTitle(
       name: 'Одни из нас',
       type: TitleType.series,
@@ -156,7 +165,8 @@ const mockEntries = [
     status: WatchStatus.watching,
     watchedEpisodes: 4,
   ),
-    WatchEntry(
+  WatchEntry(
+    id: 9,
     media: MediaTitle(
       name: 'Ванпанчмен',
       type: TitleType.anime,
@@ -170,6 +180,7 @@ const mockEntries = [
     watchedEpisodes: 7,
   ),
   WatchEntry(
+    id: 10,
     media: MediaTitle(
       name: 'Токийский гуль',
       type: TitleType.anime,
