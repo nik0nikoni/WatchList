@@ -1,8 +1,7 @@
-import 'details_screen.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import '../data/mock_data.dart';
 import '../widgets/title_card.dart';
-
 
 class LibraryScreen extends StatelessWidget {
   const LibraryScreen({super.key});
@@ -43,12 +42,8 @@ class LibraryScreen extends StatelessWidget {
               separatorBuilder: (_, _) => const SizedBox(height: 8),
               itemBuilder: (context, index) => TitleCard(
                 entry: mockEntries[index],
-                onTap: () => Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (_) => DetailsScreen(entry: mockEntries[index]),
-                  ),
-                ),
+                onTap: () =>
+                    context.push('/library/${mockEntries[index].id}'),
               ),
             ),
           ),

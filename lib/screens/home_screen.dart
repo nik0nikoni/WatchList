@@ -1,22 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import '../data/mock_data.dart';
 import '../widgets/continue_card.dart';
 import '../widgets/nav_tile.dart';
 import '../widgets/stat_tile.dart';
 import '../widgets/title_card.dart';
-import 'details_screen.dart';
-import 'library_screen.dart';
-import 'status_lists_screen.dart';
-import 'add_entry_screen.dart';
-import 'login_screen.dart';
-import 'profile_screen.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
-
-  void _open(BuildContext context, Widget screen) {
-    Navigator.push(context, MaterialPageRoute(builder: (_) => screen));
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -82,8 +73,7 @@ class HomeScreen extends StatelessWidget {
               separatorBuilder: (_, _) => const SizedBox(width: 12),
               itemBuilder: (context, index) => ContinueCard(
                 entry: watching[index],
-                onTap: () =>
-                    _open(context, DetailsScreen(entry: watching[index])),
+                onTap: () => context.push('/library/${watching[index].id}'),
               ),
             ),
           ),
@@ -101,27 +91,22 @@ class HomeScreen extends StatelessWidget {
               NavTile(
                 icon: Icons.video_library_outlined,
                 label: 'Библиотека',
-                onTap: () => _open(context, const LibraryScreen()),
+                onTap: () => context.go('/library'),
               ),
               NavTile(
                 icon: Icons.checklist_rounded,
                 label: 'Мои списки',
-                onTap: () => _open(context, const StatusListsScreen()),
+                onTap: () => context.go('/lists'),
               ),
               NavTile(
                 icon: Icons.add_circle_outline,
                 label: 'Добавить',
-                onTap: () => _open(context, const AddEntryScreen()),
-              ),
-                            NavTile(
-                icon: Icons.person_outline,
-                label: 'Профиль',
-                onTap: () => _open(context, const ProfileScreen()),
+                onTap: () => context.push('/library/new'),
               ),
               NavTile(
-                icon: Icons.login,
-                label: 'Вход',
-                onTap: () => _open(context, const LoginScreen()),
+                icon: Icons.person_outline,
+                label: 'Профиль',
+                onTap: () => context.go('/profile'),
               ),
             ],
           ),
@@ -131,7 +116,7 @@ class HomeScreen extends StatelessWidget {
           for (final entry in recent) ...[
             TitleCard(
               entry: entry,
-              onTap: () => _open(context, DetailsScreen(entry: entry)),
+              onTap: () => context.push('/library/${entry.id}'),
             ),
             const SizedBox(height: 8),
           ],

@@ -4,14 +4,22 @@ import '../widgets/info_row.dart';
 import '../widgets/poster_placeholder.dart';
 
 class DetailsScreen extends StatelessWidget {
-  final WatchEntry entry;
+  final int id;
 
-  const DetailsScreen({super.key, required this.entry});
+  const DetailsScreen({super.key, required this.id});
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final scheme = theme.colorScheme;
+    // экран сам ищет свою запись по id — сегодня в mock-е, на L4 в Repository
+    final entry = mockEntries.where((e) => e.id == id).firstOrNull;
+    if (entry == null) {
+      return Scaffold(
+        appBar: AppBar(),
+        body: Center(child: Text('Запись #$id не найдена')),
+      );
+    }
     final media = entry.media;
     final genres = media.genres.split(', ');
     final rating = entry.myRating;

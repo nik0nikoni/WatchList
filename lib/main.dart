@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'screens/home_screen.dart';
+import 'router.dart';
 
 void main() => runApp(const MyApp());
 
@@ -13,7 +13,7 @@ class MyApp extends StatelessWidget {
       brightness: Brightness.dark,
     );
 
-    return MaterialApp(
+    return MaterialApp.router(
       title: 'WatchList',
       theme: ThemeData(
         useMaterial3: true,
@@ -43,7 +43,7 @@ class MyApp extends StatelessWidget {
           titleMedium: TextStyle(fontWeight: FontWeight.w600),
         ),
       ),
-      home: const HomeScreen(),
+      routerConfig: router,
     );
   }
 }

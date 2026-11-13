@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import '../data/mock_data.dart';
 import '../widgets/title_card.dart';
-import 'details_screen.dart';
 
 class StatusListsScreen extends StatelessWidget {
   const StatusListsScreen({super.key});
@@ -34,12 +34,7 @@ class StatusListsScreen extends StatelessWidget {
               separatorBuilder: (_, _) => const SizedBox(height: 8),
               itemBuilder: (context, index) => TitleCard(
                 entry: items[index],
-                onTap: () => Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (_) => DetailsScreen(entry: items[index]),
-                  ),
-                ),
+                onTap: () => context.push('/library/${items[index].id}'),
               ),
             );
           }).toList(),

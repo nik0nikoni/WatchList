@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import '../data/mock_data.dart';
 import '../widgets/stat_tile.dart';
 
@@ -94,7 +95,7 @@ class ProfileScreen extends StatelessWidget {
           ),
           const SizedBox(height: 20),
           OutlinedButton.icon(
-            onPressed: () {},
+            onPressed: () => context.go('/login'),
             icon: const Icon(Icons.logout),
             label: const Text('Выйти из аккаунта'),
           ),
