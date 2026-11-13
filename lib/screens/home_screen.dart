@@ -8,6 +8,8 @@ import 'details_screen.dart';
 import 'library_screen.dart';
 import 'status_lists_screen.dart';
 import 'add_entry_screen.dart';
+import 'login_screen.dart';
+import 'profile_screen.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
@@ -77,7 +79,7 @@ class HomeScreen extends StatelessWidget {
             child: ListView.separated(
               scrollDirection: Axis.horizontal,
               itemCount: watching.length,
-              separatorBuilder: (_, __) => const SizedBox(width: 12),
+              separatorBuilder: (_, _) => const SizedBox(width: 12),
               itemBuilder: (context, index) => ContinueCard(
                 entry: watching[index],
                 onTap: () =>
@@ -110,6 +112,16 @@ class HomeScreen extends StatelessWidget {
                 icon: Icons.add_circle_outline,
                 label: 'Добавить',
                 onTap: () => _open(context, const AddEntryScreen()),
+              ),
+                            NavTile(
+                icon: Icons.person_outline,
+                label: 'Профиль',
+                onTap: () => _open(context, const ProfileScreen()),
+              ),
+              NavTile(
+                icon: Icons.login,
+                label: 'Вход',
+                onTap: () => _open(context, const LoginScreen()),
               ),
             ],
           ),
