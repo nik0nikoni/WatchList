@@ -1,17 +1,46 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+
 import '../data/mock_data.dart';
 import '../widgets/stat_tile.dart';
 
 class ProfileScreen extends StatelessWidget {
   const ProfileScreen({super.key});
 
+  // блокирующее решение → AlertDialog с результатом
+  Future<void> _logout(BuildContext context) async {
+    final ok = await showDialog<bool>(
+      context: context,
+      builder: (dialogCtx) => AlertDialog(
+        title: const Text('Выйти из аккаунта?'),
+        content: const Text('Чтобы вернуться, придётся войти заново.'),
+        actions: [
+          // dialogCtx, а не context: под вложенными навигаторами shell-а
+          // pop на context-е экрана закрыл бы не диалог, а что-то другое
+          TextButton(
+            onPressed: () => Navigator.pop(dialogCtx, false),
+            child: const Text('Нет'),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.pop(dialogCtx, true),
+            child: const Text('Да, выйти'),
+          ),
+        ],
+      ),
+    );
+    // после await context используется только если экран ещё жив
+    if (ok == true && context.mounted) {
+      context.go('/login'); // go: раздел с вкладками уходит из стека
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final scheme = theme.colorScheme;
-    final completed =
-        mockEntries.where((e) => e.status == WatchStatus.completed).length;
+    final completed = mockEntries
+        .where((e) => e.status == WatchStatus.completed)
+        .length;
 
     return Scaffold(
       appBar: AppBar(title: const Text('Профиль')),
@@ -24,18 +53,23 @@ class ProfileScreen extends StatelessWidget {
               backgroundColor: scheme.primaryContainer,
               child: Text(
                 'А',
-                style: theme.textTheme.headlineMedium
-                    ?.copyWith(color: scheme.onPrimaryContainer),
+                style: theme.textTheme.headlineMedium?.copyWith(
+                  color: scheme.onPrimaryContainer,
+                ),
               ),
             ),
           ),
           const SizedBox(height: 12),
-          Text('Abobus',
-              style: theme.textTheme.titleLarge, textAlign: TextAlign.center),
+          Text(
+            'Abobus',
+            style: theme.textTheme.titleLarge,
+            textAlign: TextAlign.center,
+          ),
           Text(
             'abobus@example.com',
-            style: theme.textTheme.bodyMedium
-                ?.copyWith(color: scheme.onSurfaceVariant),
+            style: theme.textTheme.bodyMedium?.copyWith(
+              color: scheme.onSurfaceVariant,
+            ),
             textAlign: TextAlign.center,
           ),
           const SizedBox(height: 20),
@@ -95,7 +129,7 @@ class ProfileScreen extends StatelessWidget {
           ),
           const SizedBox(height: 20),
           OutlinedButton.icon(
-            onPressed: () => context.go('/login'),
+            onPressed: () => _logout(context),
             icon: const Icon(Icons.logout),
             label: const Text('Выйти из аккаунта'),
           ),

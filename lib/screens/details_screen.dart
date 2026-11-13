@@ -10,6 +10,38 @@ class DetailsScreen extends StatelessWidget {
 
   const DetailsScreen({super.key, required this.id});
 
+  void _notify(BuildContext context, String message) {
+    ScaffoldMessenger.of(context)
+        .showSnackBar(SnackBar(content: Text(message)));
+  }
+
+  // деструктивное действие → блокирующее решение через AlertDialog
+  Future<void> _delete(BuildContext context, WatchEntry entry) async {
+    final ok = await showDialog<bool>(
+      context: context,
+      builder: (dialogCtx) => AlertDialog(
+        icon: const Icon(Icons.delete_outline),
+        title: const Text('Удалить запись?'),
+        content: Text('«${entry.media.name}» исчезнет из вашей библиотеки.'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(dialogCtx, false),
+            child: const Text('Отмена'),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.pop(dialogCtx, true),
+            child: const Text('Удалить'),
+          ),
+        ],
+      ),
+    );
+    // ok == true, а не ok!: закрытый тапом мимо диалог возвращает null
+    if (ok == true && context.mounted) {
+      _notify(context, 'Удалено: ${entry.media.name}');
+      context.pop(); // реальное удаление — на L4, вместе с состоянием
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
@@ -29,8 +61,18 @@ class DetailsScreen extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         actions: [
-          IconButton(onPressed: () {}, icon: const Icon(Icons.favorite_border)),
-          IconButton(onPressed: () {}, icon: const Icon(Icons.share_outlined)),
+          IconButton(
+            onPressed: () => _notify(context, 'Добавлено в избранное'),
+            icon: const Icon(Icons.favorite_border),
+          ),
+          IconButton(
+            onPressed: () => _notify(context, 'Ссылка скопирована'),
+            icon: const Icon(Icons.share_outlined),
+          ),
+          IconButton(
+            onPressed: () => _delete(context, entry),
+            icon: const Icon(Icons.delete_outline),
+          ),
         ],
       ),
       body: ListView(
@@ -67,6 +109,9 @@ class DetailsScreen extends StatelessWidget {
             expandedInsets: EdgeInsets.zero,
             label: const Text('Статус'),
             initialSelection: entry.status,
+            onSelected: (status) {
+              if (status != null) _notify(context, 'Статус: ${status.label}');
+            },
             dropdownMenuEntries: WatchStatus.values
                 .map((s) => DropdownMenuEntry(value: s, label: s.label))
                 .toList(),
