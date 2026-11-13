@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+
 import '../data/mock_data.dart';
 import '../widgets/info_row.dart';
 import '../widgets/poster_placeholder.dart';
@@ -36,24 +37,22 @@ class DetailsScreen extends StatelessWidget {
         padding: const EdgeInsets.fromLTRB(16, 0, 16, 24),
         children: [
           Center(
-            child: PosterPlaceholder(
-              type: media.type,
-              width: 160,
-              height: 230,
-            ),
+            child: PosterPlaceholder(type: media.type, width: 160, height: 230),
           ),
           const SizedBox(height: 20),
           Text(
             media.name,
-            style: theme.textTheme.headlineSmall
-                ?.copyWith(fontWeight: FontWeight.w700),
+            style: theme.textTheme.headlineSmall?.copyWith(
+              fontWeight: FontWeight.w700,
+            ),
             textAlign: TextAlign.center,
           ),
           const SizedBox(height: 4),
           Text(
             '${media.type.label} · ${media.year}',
-            style: theme.textTheme.bodyMedium
-                ?.copyWith(color: scheme.onSurfaceVariant),
+            style: theme.textTheme.bodyMedium?.copyWith(
+              color: scheme.onSurfaceVariant,
+            ),
             textAlign: TextAlign.center,
           ),
           const SizedBox(height: 12),
@@ -106,8 +105,9 @@ class DetailsScreen extends StatelessWidget {
                   const SizedBox(height: 4),
                   Text(
                     '${entry.watchedEpisodes} / ${media.episodes} эп.',
-                    style: theme.textTheme.bodySmall
-                        ?.copyWith(color: scheme.onSurfaceVariant),
+                    style: theme.textTheme.bodySmall?.copyWith(
+                      color: scheme.onSurfaceVariant,
+                    ),
                   ),
                 ],
               ),
@@ -137,7 +137,10 @@ class DetailsScreen extends StatelessWidget {
           ],
           const SizedBox(height: 24),
           FilledButton.icon(
-            onPressed: () => context.push('/library/$id/edit'), // зайду и вернусь
+            // адрес текущей вкладки + /edit: /home/3/edit, /library/3/edit...
+            onPressed: () => context.push(
+              '${GoRouterState.of(context).matchedLocation}/edit',
+            ),
             icon: const Icon(Icons.edit_outlined),
             label: const Text('Редактировать запись'),
           ),

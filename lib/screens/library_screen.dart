@@ -10,6 +10,11 @@ class LibraryScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text('Моя библиотека')),
+      floatingActionButton: FloatingActionButton.extended(
+        onPressed: () => context.push('/library/new'),
+        icon: const Icon(Icons.add),
+        label: const Text('Добавить'),
+      ),
       body: Column(
         children: [
           const Padding(

@@ -73,7 +73,7 @@ class HomeScreen extends StatelessWidget {
               separatorBuilder: (_, _) => const SizedBox(width: 12),
               itemBuilder: (context, index) => ContinueCard(
                 entry: watching[index],
-                onTap: () => context.push('/library/${watching[index].id}'),
+                onTap: () => context.push('/home/${watching[index].id}'),
               ),
             ),
           ),
@@ -101,7 +101,7 @@ class HomeScreen extends StatelessWidget {
               NavTile(
                 icon: Icons.add_circle_outline,
                 label: 'Добавить',
-                onTap: () => context.push('/library/new'),
+                onTap: () => context.go('/library/new'), // в другую вкладку — go
               ),
               NavTile(
                 icon: Icons.person_outline,
@@ -116,7 +116,7 @@ class HomeScreen extends StatelessWidget {
           for (final entry in recent) ...[
             TitleCard(
               entry: entry,
-              onTap: () => context.push('/library/${entry.id}'),
+              onTap: () => context.push('/home/${entry.id}'),
             ),
             const SizedBox(height: 8),
           ],

@@ -34,7 +34,7 @@ class StatusListsScreen extends StatelessWidget {
               separatorBuilder: (_, _) => const SizedBox(height: 8),
               itemBuilder: (context, index) => TitleCard(
                 entry: items[index],
-                onTap: () => context.push('/library/${items[index].id}'),
+                onTap: () => context.push('/lists/${items[index].id}'),
               ),
             );
           }).toList(),
