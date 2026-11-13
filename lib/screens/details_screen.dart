@@ -79,7 +79,12 @@ class DetailsScreen extends StatelessWidget {
         padding: const EdgeInsets.fromLTRB(16, 0, 16, 24),
         children: [
           Center(
-            child: PosterPlaceholder(type: media.type, width: 160, height: 230),
+            child: PosterPlaceholder(
+              type: media.type,
+              name: media.name,
+              width: 160,
+              height: 230,
+            ),
           ),
           const SizedBox(height: 20),
           Text(

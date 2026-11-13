@@ -4,20 +4,20 @@ enum WatchStatus { planned, watching, completed, onHold, dropped }
 
 extension TitleTypeLabel on TitleType {
   String get label => switch (this) {
-        TitleType.movie => 'Фильм',
-        TitleType.series => 'Сериал',
-        TitleType.anime => 'Аниме',
-      };
+    TitleType.movie => 'Фильм',
+    TitleType.series => 'Сериал',
+    TitleType.anime => 'Аниме',
+  };
 }
 
 extension WatchStatusLabel on WatchStatus {
   String get label => switch (this) {
-        WatchStatus.planned => 'В планах',
-        WatchStatus.watching => 'Смотрю',
-        WatchStatus.completed => 'Просмотрено',
-        WatchStatus.onHold => 'Отложено',
-        WatchStatus.dropped => 'Брошено',
-      };
+    WatchStatus.planned => 'В планах',
+    WatchStatus.watching => 'Смотрю',
+    WatchStatus.completed => 'Просмотрено',
+    WatchStatus.onHold => 'Отложено',
+    WatchStatus.dropped => 'Брошено',
+  };
 }
 
 class MediaTitle {
@@ -93,7 +93,8 @@ const mockEntries = [
       type: TitleType.anime,
       year: 2013,
       genres: 'экшен, драма, фэнтези',
-      description: 'Остатки человечества прячутся за стенами от гигантских титанов.',
+      description:
+          'Остатки человечества прячутся за стенами от гигантских титанов.',
       episodes: 87,
     ),
     status: WatchStatus.watching,

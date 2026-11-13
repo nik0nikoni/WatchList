@@ -24,7 +24,9 @@ class _LoginScreenState extends State<LoginScreen> {
   void _submit() {
     if (!_formKey.currentState!.validate()) return;
     // L3: реальной проверки нет — любые валидные данные входят (backend — на L5)
-    context.go('/home'); // go, НЕ push: login уходит из стека, «назад» сюда не вернёт
+    context.go(
+      '/home',
+    ); // go, НЕ push: login уходит из стека, «назад» сюда не вернёт
   }
 
   String? _validateEmail(String? value) {
@@ -72,8 +74,9 @@ class _LoginScreenState extends State<LoginScreen> {
                   const SizedBox(height: 4),
                   Text(
                     'Фильмы, сериалы и аниме в одном месте',
-                    style: theme.textTheme.bodyMedium
-                        ?.copyWith(color: scheme.onSurfaceVariant),
+                    style: theme.textTheme.bodyMedium?.copyWith(
+                      color: scheme.onSurfaceVariant,
+                    ),
                     textAlign: TextAlign.center,
                   ),
                   const SizedBox(height: 32),
@@ -85,7 +88,6 @@ class _LoginScreenState extends State<LoginScreen> {
                     decoration: const InputDecoration(
                       labelText: 'E-mail',
                       prefixIcon: Icon(Icons.mail_outline),
-                      border: OutlineInputBorder(),
                     ),
                     validator: _validateEmail,
                   ),
@@ -94,17 +96,19 @@ class _LoginScreenState extends State<LoginScreen> {
                     controller: _passwordCtrl,
                     obscureText: _obscure,
                     textInputAction: TextInputAction.done,
-                    onFieldSubmitted: (_) => _submit(), // Enter на клавиатуре = «Войти»
+                    onFieldSubmitted: (_) =>
+                        _submit(), // Enter на клавиатуре = «Войти»
                     decoration: InputDecoration(
                       labelText: 'Пароль',
                       prefixIcon: const Icon(Icons.lock_outline),
                       suffixIcon: IconButton(
                         onPressed: () => setState(() => _obscure = !_obscure),
-                        icon: Icon(_obscure
-                            ? Icons.visibility_outlined
-                            : Icons.visibility_off_outlined),
+                        icon: Icon(
+                          _obscure
+                              ? Icons.visibility_outlined
+                              : Icons.visibility_off_outlined,
+                        ),
                       ),
-                      border: const OutlineInputBorder(),
                     ),
                     validator: _validatePassword,
                   ),
@@ -120,7 +124,10 @@ class _LoginScreenState extends State<LoginScreen> {
                   TextButton(
                     onPressed: () => ScaffoldMessenger.of(context).showSnackBar(
                       const SnackBar(
-                          content: Text('Регистрация появится вместе с backend-ом')),
+                        content: Text(
+                          'Регистрация появится вместе с backend-ом',
+                        ),
+                      ),
                     ),
                     child: const Text('Нет аккаунта? Зарегистрируйтесь'),
                   ),

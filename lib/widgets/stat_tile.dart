@@ -27,8 +27,9 @@ class StatTile extends StatelessWidget {
             Text(value, style: theme.textTheme.titleLarge),
             Text(
               label,
-              style: theme.textTheme.bodySmall
-                  ?.copyWith(color: scheme.onSurfaceVariant),
+              style: theme.textTheme.bodySmall?.copyWith(
+                color: scheme.onSurfaceVariant,
+              ),
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
             ),

@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+
 import '../data/mock_data.dart';
 import '../widgets/continue_card.dart';
-import '../widgets/nav_tile.dart';
 import '../widgets/stat_tile.dart';
 import '../widgets/title_card.dart';
 
@@ -15,10 +15,12 @@ class HomeScreen extends StatelessWidget {
     final watching = mockEntries
         .where((e) => e.status == WatchStatus.watching && e.media.episodes > 1)
         .toList();
-    final completed =
-        mockEntries.where((e) => e.status == WatchStatus.completed).length;
-    final planned =
-        mockEntries.where((e) => e.status == WatchStatus.planned).length;
+    final completed = mockEntries
+        .where((e) => e.status == WatchStatus.completed)
+        .length;
+    final planned = mockEntries
+        .where((e) => e.status == WatchStatus.planned)
+        .length;
     final recent = mockEntries.reversed.take(3).toList();
 
     return Scaffold(
@@ -27,7 +29,9 @@ class HomeScreen extends StatelessWidget {
         actions: [
           IconButton(onPressed: () {}, icon: const Icon(Icons.search)),
           IconButton(
-              onPressed: () {}, icon: const Icon(Icons.notifications_none)),
+            onPressed: () {},
+            icon: const Icon(Icons.notifications_none),
+          ),
         ],
       ),
       body: ListView(
@@ -76,39 +80,6 @@ class HomeScreen extends StatelessWidget {
                 onTap: () => context.push('/home/${watching[index].id}'),
               ),
             ),
-          ),
-          const SizedBox(height: 24),
-          Text('Разделы', style: theme.textTheme.titleLarge),
-          const SizedBox(height: 12),
-          GridView.count(
-            crossAxisCount: 2,
-            mainAxisSpacing: 12,
-            crossAxisSpacing: 12,
-            childAspectRatio: 1.5,
-            shrinkWrap: true,
-            physics: const NeverScrollableScrollPhysics(),
-            children: [
-              NavTile(
-                icon: Icons.video_library_outlined,
-                label: 'Библиотека',
-                onTap: () => context.go('/library'),
-              ),
-              NavTile(
-                icon: Icons.checklist_rounded,
-                label: 'Мои списки',
-                onTap: () => context.go('/lists'),
-              ),
-              NavTile(
-                icon: Icons.add_circle_outline,
-                label: 'Добавить',
-                onTap: () => context.go('/library/new'), // в другую вкладку — go
-              ),
-              NavTile(
-                icon: Icons.person_outline,
-                label: 'Профиль',
-                onTap: () => context.go('/profile'),
-              ),
-            ],
           ),
           const SizedBox(height: 24),
           Text('Недавно добавлено', style: theme.textTheme.titleLarge),

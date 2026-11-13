@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
+
 import '../data/mock_data.dart';
 
 class AddEntryScreen extends StatefulWidget {
@@ -62,9 +63,13 @@ class _AddEntryScreenState extends State<AddEntryScreen> {
   void _save() {
     if (!_formKey.currentState!.validate()) return; // ошибки уже на экране
     final title = _titleCtrl.text.trim();
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-      content: Text(_isEdit ? 'Изменения сохранены: $title' : 'Добавлено: $title'),
-    ));
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(
+          _isEdit ? 'Изменения сохранены: $title' : 'Добавлено: $title',
+        ),
+      ),
+    );
     context.pop(); // открыто push-ем → закрывается pop-ом
   }
 
@@ -128,9 +133,7 @@ class _AddEntryScreenState extends State<AddEntryScreen> {
     final theme = Theme.of(context);
 
     return Scaffold(
-      appBar: AppBar(
-        title: Text(_isEdit ? 'Редактирование' : 'Новая запись'),
-      ),
+      appBar: AppBar(title: Text(_isEdit ? 'Редактирование' : 'Новая запись')),
       body: Form(
         key: _formKey,
         child: ListView(
@@ -144,7 +147,6 @@ class _AddEntryScreenState extends State<AddEntryScreen> {
                 labelText: 'Название',
                 hintText: 'Например, Cowboy Bebop',
                 prefixIcon: Icon(Icons.movie_outlined),
-                border: OutlineInputBorder(),
               ),
               validator: _validateTitle,
             ),
@@ -162,10 +164,7 @@ class _AddEntryScreenState extends State<AddEntryScreen> {
             const SizedBox(height: 20),
             DropdownButtonFormField<WatchStatus>(
               initialValue: _status,
-              decoration: const InputDecoration(
-                labelText: 'Статус',
-                border: OutlineInputBorder(),
-              ),
+              decoration: const InputDecoration(labelText: 'Статус'),
               items: WatchStatus.values
                   .map((s) => DropdownMenuItem(value: s, child: Text(s.label)))
                   .toList(),
@@ -184,10 +183,7 @@ class _AddEntryScreenState extends State<AddEntryScreen> {
                       LengthLimitingTextInputFormatter(4),
                     ],
                     textInputAction: TextInputAction.next,
-                    decoration: const InputDecoration(
-                      labelText: 'Год выхода',
-                      border: OutlineInputBorder(),
-                    ),
+                    decoration: const InputDecoration(labelText: 'Год выхода'),
                     validator: _validateYear,
                   ),
                 ),
@@ -201,10 +197,7 @@ class _AddEntryScreenState extends State<AddEntryScreen> {
                       LengthLimitingTextInputFormatter(5),
                     ],
                     textInputAction: TextInputAction.next,
-                    decoration: const InputDecoration(
-                      labelText: 'Эпизодов',
-                      border: OutlineInputBorder(),
-                    ),
+                    decoration: const InputDecoration(labelText: 'Эпизодов'),
                     validator: _validateEpisodes,
                   ),
                 ),
@@ -222,7 +215,6 @@ class _AddEntryScreenState extends State<AddEntryScreen> {
               decoration: const InputDecoration(
                 labelText: 'Просмотрено эпизодов',
                 hintText: '0',
-                border: OutlineInputBorder(),
               ),
               validator: _validateWatched,
             ),
@@ -233,7 +225,6 @@ class _AddEntryScreenState extends State<AddEntryScreen> {
               decoration: const InputDecoration(
                 labelText: 'Жанры',
                 hintText: 'экшен, драма',
-                border: OutlineInputBorder(),
               ),
               validator: _validateGenres,
             ),
@@ -243,7 +234,6 @@ class _AddEntryScreenState extends State<AddEntryScreen> {
               decoration: const InputDecoration(
                 labelText: 'Моя оценка',
                 prefixIcon: Icon(Icons.star_rounded),
-                border: OutlineInputBorder(),
               ),
               items: [
                 const DropdownMenuItem(value: null, child: Text('Без оценки')),
@@ -262,7 +252,6 @@ class _AddEntryScreenState extends State<AddEntryScreen> {
               decoration: const InputDecoration(
                 labelText: 'Заметка',
                 alignLabelWithHint: true,
-                border: OutlineInputBorder(),
               ),
             ),
             SwitchListTile(
@@ -272,10 +261,7 @@ class _AddEntryScreenState extends State<AddEntryScreen> {
               onChanged: (value) => setState(() => _favorite = value),
             ),
             const SizedBox(height: 16),
-            FilledButton(
-              onPressed: _save,
-              child: const Text('Сохранить'),
-            ),
+            FilledButton(onPressed: _save, child: const Text('Сохранить')),
             const SizedBox(height: 8),
             OutlinedButton(
               onPressed: () => context.pop(),

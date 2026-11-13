@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+
 import '../data/mock_data.dart';
 import 'poster_placeholder.dart';
 import 'status_badge.dart';
@@ -14,9 +15,11 @@ class TitleCard extends StatelessWidget {
     final theme = Theme.of(context);
     final scheme = theme.colorScheme;
     final media = entry.media;
-    final subtle = theme.textTheme.bodySmall
-        ?.copyWith(color: scheme.onSurfaceVariant);
-    final showProgress = media.episodes > 1 &&
+    final subtle = theme.textTheme.bodySmall?.copyWith(
+      color: scheme.onSurfaceVariant,
+    );
+    final showProgress =
+        media.episodes > 1 &&
         (entry.status == WatchStatus.watching ||
             entry.status == WatchStatus.onHold ||
             entry.status == WatchStatus.dropped);
@@ -30,7 +33,7 @@ class TitleCard extends StatelessWidget {
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              PosterPlaceholder(type: media.type),
+              PosterPlaceholder(type: media.type, name: media.name),
               const SizedBox(width: 14),
               Expanded(
                 child: Column(
@@ -71,11 +74,16 @@ class TitleCard extends StatelessWidget {
                         StatusBadge(status: entry.status),
                         const Spacer(),
                         if (entry.myRating != null) ...[
-                          Icon(Icons.star_rounded,
-                              size: 18, color: scheme.primary),
+                          Icon(
+                            Icons.star_rounded,
+                            size: 18,
+                            color: scheme.primary,
+                          ),
                           const SizedBox(width: 2),
-                          Text('${entry.myRating}',
-                              style: theme.textTheme.labelLarge),
+                          Text(
+                            '${entry.myRating}',
+                            style: theme.textTheme.labelLarge,
+                          ),
                         ],
                       ],
                     ),

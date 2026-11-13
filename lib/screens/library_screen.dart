@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+
 import '../data/mock_data.dart';
 import '../widgets/title_card.dart';
 
@@ -30,13 +31,29 @@ class LibraryScreen extends StatelessWidget {
               scrollDirection: Axis.horizontal,
               padding: const EdgeInsets.symmetric(horizontal: 16),
               children: [
-                FilterChip(label: const Text('Все'), selected: true, onSelected: (_) {}),
+                FilterChip(
+                  label: const Text('Все'),
+                  selected: true,
+                  onSelected: (_) {},
+                ),
                 const SizedBox(width: 8),
-                FilterChip(label: const Text('Фильмы'), selected: false, onSelected: (_) {}),
+                FilterChip(
+                  label: const Text('Фильмы'),
+                  selected: false,
+                  onSelected: (_) {},
+                ),
                 const SizedBox(width: 8),
-                FilterChip(label: const Text('Сериалы'), selected: false, onSelected: (_) {}),
+                FilterChip(
+                  label: const Text('Сериалы'),
+                  selected: false,
+                  onSelected: (_) {},
+                ),
                 const SizedBox(width: 8),
-                FilterChip(label: const Text('Аниме'), selected: false, onSelected: (_) {}),
+                FilterChip(
+                  label: const Text('Аниме'),
+                  selected: false,
+                  onSelected: (_) {},
+                ),
               ],
             ),
           ),
@@ -47,8 +64,7 @@ class LibraryScreen extends StatelessWidget {
               separatorBuilder: (_, _) => const SizedBox(height: 8),
               itemBuilder: (context, index) => TitleCard(
                 entry: mockEntries[index],
-                onTap: () =>
-                    context.push('/library/${mockEntries[index].id}'),
+                onTap: () => context.push('/library/${mockEntries[index].id}'),
               ),
             ),
           ),

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+
 import '../data/mock_data.dart';
 import '../widgets/title_card.dart';
 
@@ -23,8 +24,7 @@ class StatusListsScreen extends StatelessWidget {
         ),
         body: TabBarView(
           children: WatchStatus.values.map((status) {
-            final items =
-                mockEntries.where((e) => e.status == status).toList();
+            final items = mockEntries.where((e) => e.status == status).toList();
             if (items.isEmpty) {
               return const Center(child: Text('В этом списке пока пусто'));
             }

@@ -19,8 +19,9 @@ class InfoRow extends StatelessWidget {
             width: 110,
             child: Text(
               label,
-              style: theme.textTheme.bodyMedium
-                  ?.copyWith(color: theme.colorScheme.onSurfaceVariant),
+              style: theme.textTheme.bodyMedium?.copyWith(
+                color: theme.colorScheme.onSurfaceVariant,
+              ),
             ),
           ),
           Expanded(child: Text(value, style: theme.textTheme.bodyMedium)),

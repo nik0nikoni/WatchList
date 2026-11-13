@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+
 import '../data/mock_data.dart';
 import 'poster_placeholder.dart';
 
@@ -21,7 +22,12 @@ class ContinueCard extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            PosterPlaceholder(type: media.type, width: 140, height: 100),
+            PosterPlaceholder(
+              type: media.type,
+              name: media.name,
+              width: 140,
+              height: 100,
+            ),
             const SizedBox(height: 8),
             Text(
               media.name,
@@ -40,8 +46,9 @@ class ContinueCard extends StatelessWidget {
             const SizedBox(height: 4),
             Text(
               '${entry.watchedEpisodes} / ${media.episodes} эп.',
-              style: theme.textTheme.bodySmall
-                  ?.copyWith(color: theme.colorScheme.onSurfaceVariant),
+              style: theme.textTheme.bodySmall?.copyWith(
+                color: theme.colorScheme.onSurfaceVariant,
+              ),
             ),
           ],
         ),
