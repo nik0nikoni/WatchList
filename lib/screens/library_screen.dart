@@ -40,7 +40,7 @@ class LibraryScreen extends StatelessWidget {
             child: ListView.separated(
               padding: const EdgeInsets.all(16),
               itemCount: mockEntries.length,
-              separatorBuilder: (_, __) => const SizedBox(height: 8),
+              separatorBuilder: (_, _) => const SizedBox(height: 8),
               itemBuilder: (context, index) => TitleCard(
                 entry: mockEntries[index],
                 onTap: () => Navigator.push(
