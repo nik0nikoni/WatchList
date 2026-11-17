@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../data/mock_data.dart';
+import '../data/watch_entry.dart';
 import 'poster_placeholder.dart';
 
 class ContinueCard extends StatelessWidget {

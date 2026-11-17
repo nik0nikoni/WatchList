@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 
 import '../data/mock_data.dart';
+import '../data/watch_entry.dart';
 
 class AddEntryScreen extends StatefulWidget {
   final int? id; // null — новая запись, иначе — редактирование записи с этим id

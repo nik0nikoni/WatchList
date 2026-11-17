@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
 import '../data/mock_data.dart';
+import '../data/watch_entry.dart';
 import '../widgets/continue_card.dart';
 import '../widgets/stat_tile.dart';
 import '../widgets/title_card.dart';

@@ -1,61 +1,6 @@
-enum TitleType { movie, series, anime }
+import 'watch_entry.dart';
 
-enum WatchStatus { planned, watching, completed, onHold, dropped }
-
-extension TitleTypeLabel on TitleType {
-  String get label => switch (this) {
-    TitleType.movie => 'Фильм',
-    TitleType.series => 'Сериал',
-    TitleType.anime => 'Аниме',
-  };
-}
-
-extension WatchStatusLabel on WatchStatus {
-  String get label => switch (this) {
-    WatchStatus.planned => 'В планах',
-    WatchStatus.watching => 'Смотрю',
-    WatchStatus.completed => 'Просмотрено',
-    WatchStatus.onHold => 'Отложено',
-    WatchStatus.dropped => 'Брошено',
-  };
-}
-
-class MediaTitle {
-  final String name;
-  final TitleType type;
-  final int year;
-  final String genres;
-  final String description;
-  final int episodes;
-
-  const MediaTitle({
-    required this.name,
-    required this.type,
-    required this.year,
-    required this.genres,
-    required this.description,
-    required this.episodes,
-  });
-}
-
-class WatchEntry {
-  final int id; // идентичность, которая путешествует в адресе: /library/3
-  final MediaTitle media;
-  final WatchStatus status;
-  final int? myRating; // 1-10
-  final int watchedEpisodes;
-  final String note;
-
-  const WatchEntry({
-    required this.id,
-    required this.media,
-    required this.status,
-    this.myRating,
-    this.watchedEpisodes = 0,
-    this.note = '',
-  });
-}
-
+// seed-данные: после L4 их видит только mock-хранилище
 const mockEntries = [
   WatchEntry(
     id: 1,
@@ -85,6 +30,7 @@ const mockEntries = [
     status: WatchStatus.watching,
     myRating: 10,
     watchedEpisodes: 41,
+    isFavorite: true,
   ),
   WatchEntry(
     id: 3,
@@ -114,6 +60,7 @@ const mockEntries = [
     status: WatchStatus.completed,
     myRating: 10,
     watchedEpisodes: 64,
+    isFavorite: true,
   ),
   WatchEntry(
     id: 5,

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
 import '../data/mock_data.dart';
+import '../data/watch_entry.dart';
 import '../widgets/stat_tile.dart';
 
 class ProfileScreen extends StatelessWidget {
