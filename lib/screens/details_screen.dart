@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:provider/provider.dart';
 
-import '../data/mock_data.dart';
 import '../data/watch_entry.dart';
+import '../models/library_model.dart';
+import '../widgets/error_view.dart';
 import '../widgets/info_row.dart';
 import '../widgets/poster_placeholder.dart';
 
@@ -37,34 +39,75 @@ class DetailsScreen extends StatelessWidget {
       ),
     );
     // ok == true, а не ok!: закрытый тапом мимо диалог возвращает null
-    if (ok == true && context.mounted) {
-      _notify(context, 'Удалено: ${entry.media.name}');
-      context.pop(); // реальное удаление — на L4, вместе с состоянием
+    if (ok != true || !context.mounted) return;
+    final error = await context.read<LibraryModel>().remove(entry.id);
+    if (!context.mounted) return; // экран может умереть, пока «запрос» летит
+    if (error != null) {
+      _notify(context, error);
+      return;
     }
+    _notify(context, 'Удалено: ${entry.media.name}');
+    context.pop(); // записи больше нет — её экран уходит из стека
+  }
+
+  Future<void> _toggleFavorite(BuildContext context, WatchEntry entry) async {
+    final error = await context.read<LibraryModel>().toggleFavorite(entry);
+    if (!context.mounted) return;
+    _notify(
+      context,
+      error ??
+          (entry.isFavorite ? 'Убрано из избранного' : 'Добавлено в избранное'),
+    );
+  }
+
+  Future<void> _setStatus(
+    BuildContext context,
+    WatchEntry entry,
+    WatchStatus status,
+  ) async {
+    final error = await context.read<LibraryModel>().setStatus(entry, status);
+    if (!context.mounted) return;
+    _notify(context, error ?? 'Статус: ${status.label}');
   }
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final scheme = theme.colorScheme;
-    // экран сам ищет свою запись по id — сегодня в mock-е, на L4 в Repository
-    final entry = mockEntries.where((e) => e.id == id).firstOrNull;
+    // экран сам ищет свою запись по id — теперь через модель; у null два
+    // смысла: список ещё грузится или записи с таким id нет
+    final model = context.watch<LibraryModel>();
+    final entry = model.byId(id);
     if (entry == null) {
-      return Scaffold(
-        appBar: AppBar(),
-        body: Center(child: Text('Запись #$id не найдена')),
-      );
+      final Widget body;
+      if (model.isLoading) {
+        body = const Center(child: CircularProgressIndicator());
+      } else if (model.error != null) {
+        body = ErrorView(
+          message: model.error!,
+          onRetry: () => context.read<LibraryModel>().load(),
+        );
+      } else {
+        body = Center(child: Text('Запись #$id не существует'));
+      }
+      return Scaffold(appBar: AppBar(), body: body);
     }
     final media = entry.media;
-    final genres = media.genres.split(', ');
+    final genres = media.genres
+        .split(',')
+        .map((g) => g.trim())
+        .where((g) => g.isNotEmpty)
+        .toList();
     final rating = entry.myRating;
 
     return Scaffold(
       appBar: AppBar(
         actions: [
           IconButton(
-            onPressed: () => _notify(context, 'Добавлено в избранное'),
-            icon: const Icon(Icons.favorite_border),
+            onPressed: () => _toggleFavorite(context, entry),
+            icon: Icon(
+              entry.isFavorite ? Icons.favorite : Icons.favorite_border,
+            ),
           ),
           IconButton(
             onPressed: () => _notify(context, 'Ссылка скопирована'),
@@ -111,15 +154,22 @@ class DetailsScreen extends StatelessWidget {
             children: genres.map((g) => Chip(label: Text(g))).toList(),
           ),
           const SizedBox(height: 20),
-          DropdownMenu<WatchStatus>(
-            expandedInsets: EdgeInsets.zero,
-            label: const Text('Статус'),
-            initialSelection: entry.status,
-            onSelected: (status) {
-              if (status != null) _notify(context, 'Статус: ${status.label}');
-            },
-            dropdownMenuEntries: WatchStatus.values
-                .map((s) => DropdownMenuEntry(value: s, label: s.label))
+          Text('Статус', style: theme.textTheme.titleMedium),
+          const SizedBox(height: 8),
+          // выбранный чип — всегда статус из модели: при ошибке ничего не «залипает»
+          Wrap(
+            spacing: 8,
+            runSpacing: 4,
+            children: WatchStatus.values
+                .map(
+                  (s) => ChoiceChip(
+                    label: Text(s.label),
+                    selected: entry.status == s,
+                    onSelected: entry.status == s
+                        ? null
+                        : (_) => _setStatus(context, entry, s),
+                  ),
+                )
                 .toList(),
           ),
           const SizedBox(height: 16),
@@ -164,17 +214,19 @@ class DetailsScreen extends StatelessWidget {
               ),
             ),
           ),
-          const SizedBox(height: 20),
-          Text('Описание', style: theme.textTheme.titleMedium),
-          const SizedBox(height: 8),
-          Text(media.description, style: theme.textTheme.bodyMedium),
+          if (media.description.isNotEmpty) ...[
+            const SizedBox(height: 20),
+            Text('Описание', style: theme.textTheme.titleMedium),
+            const SizedBox(height: 8),
+            Text(media.description, style: theme.textTheme.bodyMedium),
+          ],
           const SizedBox(height: 20),
           Text('Информация', style: theme.textTheme.titleMedium),
           const SizedBox(height: 4),
           InfoRow(label: 'Тип', value: media.type.label),
           InfoRow(label: 'Год выхода', value: '${media.year}'),
           InfoRow(label: 'Эпизодов', value: '${media.episodes}'),
-          InfoRow(label: 'Жанры', value: media.genres),
+          if (genres.isNotEmpty) InfoRow(label: 'Жанры', value: media.genres),
           if (entry.note.isNotEmpty) ...[
             const SizedBox(height: 20),
             Text('Моя заметка', style: theme.textTheme.titleMedium),
