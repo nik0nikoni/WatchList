@@ -1,20 +1,55 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
+import 'package:provider/provider.dart';
 
-import '../data/mock_data.dart';
 import '../data/watch_entry.dart';
+import '../models/library_model.dart';
+import '../widgets/error_view.dart';
 
-class AddEntryScreen extends StatefulWidget {
+class AddEntryScreen extends StatelessWidget {
   final int? id; // null — новая запись, иначе — редактирование записи с этим id
 
   const AddEntryScreen({super.key, this.id});
 
   @override
-  State<AddEntryScreen> createState() => _AddEntryScreenState();
+  Widget build(BuildContext context) {
+    final id = this.id;
+    if (id == null) return const _EntryForm(initial: null);
+
+    // редактирование: запись берётся из модели — те же три состояния
+    final model = context.watch<LibraryModel>();
+    final entry = model.byId(id);
+    if (entry != null) return _EntryForm(key: ValueKey(id), initial: entry);
+
+    final Widget body;
+    if (model.isLoading) {
+      body = const Center(child: CircularProgressIndicator());
+    } else if (model.error != null) {
+      body = ErrorView(
+        message: model.error!,
+        onRetry: () => context.read<LibraryModel>().load(),
+      );
+    } else {
+      body = Center(child: Text('Запись #$id не существует'));
+    }
+    return Scaffold(
+      appBar: AppBar(title: const Text('Редактирование')),
+      body: body,
+    );
+  }
 }
 
-class _AddEntryScreenState extends State<AddEntryScreen> {
+class _EntryForm extends StatefulWidget {
+  final WatchEntry? initial; // null — новая запись
+
+  const _EntryForm({super.key, required this.initial});
+
+  @override
+  State<_EntryForm> createState() => _EntryFormState();
+}
+
+class _EntryFormState extends State<_EntryForm> {
   final _formKey = GlobalKey<FormState>();
   final _titleCtrl = TextEditingController();
   final _yearCtrl = TextEditingController();
@@ -27,14 +62,15 @@ class _AddEntryScreenState extends State<AddEntryScreen> {
   WatchStatus _status = WatchStatus.planned;
   int? _rating;
   bool _favorite = false;
+  bool _saving = false; // пока «запрос» летит, повторный submit заблокирован
 
-  bool get _isEdit => widget.id != null;
+  bool get _isEdit => widget.initial != null;
 
   @override
   void initState() {
     super.initState();
-    // в режиме редактирования форма заполняется данными записи из mock-а
-    final entry = mockEntries.where((e) => e.id == widget.id).firstOrNull;
+    // в режиме редактирования форма заполняется данными записи из модели
+    final entry = widget.initial;
     if (entry != null) {
       final media = entry.media;
       _titleCtrl.text = media.name;
@@ -46,6 +82,7 @@ class _AddEntryScreenState extends State<AddEntryScreen> {
       _type = media.type;
       _status = entry.status;
       _rating = entry.myRating;
+      _favorite = entry.isFavorite;
     }
   }
 
@@ -61,17 +98,50 @@ class _AddEntryScreenState extends State<AddEntryScreen> {
     super.dispose();
   }
 
-  void _save() {
-    if (!_formKey.currentState!.validate()) return; // ошибки уже на экране
+  // валидный submit ПИШЕТ через модель (а та — через repository), затем уходит
+  Future<void> _save() async {
+    if (!_formKey.currentState!.validate()) return; // валидация L3, нетронута
+
+    final initial = widget.initial;
     final title = _titleCtrl.text.trim();
-    ScaffoldMessenger.of(context).showSnackBar(
+    final entry = WatchEntry(
+      // 0 — временный id: настоящую идентичность даст хранилище (на L5: сервер)
+      id: initial?.id ?? 0,
+      media: MediaTitle(
+        name: title,
+        type: _type,
+        year: int.parse(_yearCtrl.text),
+        genres: _genresCtrl.text.trim(),
+        description: initial?.media.description ?? '',
+        episodes: int.parse(_episodesCtrl.text),
+      ),
+      status: _status,
+      myRating: _rating,
+      watchedEpisodes: int.tryParse(_watchedCtrl.text) ?? 0,
+      note: _noteCtrl.text.trim(),
+      isFavorite: _favorite,
+    );
+
+    setState(() => _saving = true);
+    final model = context.read<LibraryModel>(); // read: это действие, не build
+    final error = _isEdit ? await model.update(entry) : await model.add(entry);
+    if (!mounted) return; // экран может умереть, пока «запрос» летит
+    setState(() => _saving = false);
+
+    final messenger = ScaffoldMessenger.of(context);
+    if (error != null) {
+      // данные остаются в полях — можно повторить
+      messenger.showSnackBar(SnackBar(content: Text(error)));
+      return;
+    }
+    messenger.showSnackBar(
       SnackBar(
         content: Text(
           _isEdit ? 'Изменения сохранены: $title' : 'Добавлено: $title',
         ),
       ),
     );
-    context.pop(); // открыто push-ем → закрывается pop-ом
+    context.pop(); // список позади УЖЕ обновлён — notifyListeners известил его
   }
 
   // --- валидаторы: null = поле валидно ---
@@ -262,7 +332,15 @@ class _AddEntryScreenState extends State<AddEntryScreen> {
               onChanged: (value) => setState(() => _favorite = value),
             ),
             const SizedBox(height: 16),
-            FilledButton(onPressed: _save, child: const Text('Сохранить')),
+            FilledButton(
+              onPressed: _saving ? null : _save,
+              child: _saving
+                  ? const SizedBox.square(
+                      dimension: 22,
+                      child: CircularProgressIndicator(strokeWidth: 2.5),
+                    )
+                  : const Text('Сохранить'),
+            ),
             const SizedBox(height: 8),
             OutlinedButton(
               onPressed: () => context.pop(),
