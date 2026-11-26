@@ -2,6 +2,11 @@
 
 A new Flutter project.
 
+## Backend
+
+Сервер — порт шаблона на **Python (FastAPI)**, в папке `server/`.
+Запуск (Windows): `cd server && python -m venv .venv && .venv\Scripts\pip install -r requirements.txt`, затем `.venv\Scripts\python -m app.main` → http://localhost:8080 (env `PORT`, `JWT_SECRET`).
+
 ## Getting Started
 
 This project is a starting point for a Flutter application.
