@@ -30,6 +30,7 @@ def _to_json(row) -> dict:
         "watchedEpisodes": row["watched_episodes"],
         "note": row["note"],
         "isFavorite": bool(row["is_favorite"]),
+        "posterUrl": row["poster_url"],
         "createdAt": row["created_at"],
     }
 
@@ -95,17 +96,23 @@ def _parse(body: Optional[Dict[str, Any]]) -> tuple:
     favorite = body.get("isFavorite", False)
     if not isinstance(favorite, bool):
         raise validation_error("isFavorite must be a boolean")
+    # постер — только ссылка на файл, загруженный в этот же API (POST /files)
+    poster = body.get("posterUrl")
+    if poster is not None and not (
+        isinstance(poster, str) and poster.startswith("/files/")
+    ):
+        raise validation_error("posterUrl must be a /files/{id} path or null")
 
     return (
         name, body["type"], year, _text(body, "genres"),
         _text(body, "description"), episodes, body["status"], rating,
-        watched, _text(body, "note"), int(favorite),
+        watched, _text(body, "note"), int(favorite), poster,
     )
 
 
 _COLUMNS = (
     "name, type, year, genres, description, episodes, status, my_rating, "
-    "watched_episodes, note, is_favorite"
+    "watched_episodes, note, is_favorite, poster_url"
 )
 
 
@@ -147,7 +154,7 @@ async def create_entry(request: Request, user_id: int = Depends(require_auth)):
     values = _parse(await read_json_body(request))
     cursor = conn.execute(
         "INSERT INTO entries (user_id, " + _COLUMNS + ", created_at) "
-        "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+        "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
         (user_id,) + values + (now_iso(),),
     )
     row = _find(user_id, str(cursor.lastrowid))
@@ -176,7 +183,8 @@ async def update_entry(
     conn.execute(
         "UPDATE entries SET name = ?, type = ?, year = ?, genres = ?, "
         "description = ?, episodes = ?, status = ?, my_rating = ?, "
-        "watched_episodes = ?, note = ?, is_favorite = ? WHERE id = ?",
+        "watched_episodes = ?, note = ?, is_favorite = ?, poster_url = ? "
+        "WHERE id = ?",
         values + (row["id"],),
     )
     updated = _find(user_id, str(row["id"]))

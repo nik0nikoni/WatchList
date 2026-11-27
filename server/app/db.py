@@ -43,6 +43,7 @@ CREATE TABLE IF NOT EXISTS entries (
   watched_episodes INTEGER NOT NULL DEFAULT 0,
   note             TEXT    NOT NULL DEFAULT '',
   is_favorite      INTEGER NOT NULL DEFAULT 0,   -- SQLite: bool = 0/1
+  poster_url       TEXT,                         -- '/files/7' после POST /files
   created_at       TEXT    NOT NULL
 );
 
