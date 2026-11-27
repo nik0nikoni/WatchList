@@ -11,7 +11,7 @@ from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
 from starlette.exceptions import HTTPException as StarletteHTTPException
 
-from . import auth, files, notes  # importing app.db inside them creates app.db
+from . import auth, entries, files, notes  # importing app.db inside them creates app.db
 from .errors import ApiError, json_response
 
 app = FastAPI(title="PAM Backend Template", docs_url=None, redoc_url=None)
@@ -25,6 +25,7 @@ async def health():
 # The three feature modules. Register your own entity's router the same way.
 app.include_router(auth.router)
 app.include_router(notes.router)
+app.include_router(entries.router)  # WatchList: library entries
 app.include_router(files.router)
 
 # Permissive CORS so a Flutter *web* build can call the API during the labs.

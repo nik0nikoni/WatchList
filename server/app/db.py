@@ -28,6 +28,24 @@ CREATE TABLE IF NOT EXISTS notes (
   created_at TEXT    NOT NULL
 );
 
+-- WatchList: запись библиотеки пользователя (WatchEntry + MediaTitle, плоско)
+CREATE TABLE IF NOT EXISTS entries (
+  id               INTEGER PRIMARY KEY AUTOINCREMENT,
+  user_id          INTEGER NOT NULL REFERENCES users (id),
+  name             TEXT    NOT NULL,
+  type             TEXT    NOT NULL,             -- movie | series | anime
+  year             INTEGER NOT NULL,
+  genres           TEXT    NOT NULL DEFAULT '',
+  description      TEXT    NOT NULL DEFAULT '',
+  episodes         INTEGER NOT NULL DEFAULT 1,
+  status           TEXT    NOT NULL,             -- planned | watching | ...
+  my_rating        INTEGER,                      -- 1-10 или NULL
+  watched_episodes INTEGER NOT NULL DEFAULT 0,
+  note             TEXT    NOT NULL DEFAULT '',
+  is_favorite      INTEGER NOT NULL DEFAULT 0,   -- SQLite: bool = 0/1
+  created_at       TEXT    NOT NULL
+);
+
 CREATE TABLE IF NOT EXISTS files (
   id         INTEGER PRIMARY KEY AUTOINCREMENT,
   user_id    INTEGER NOT NULL REFERENCES users (id),
@@ -48,6 +66,8 @@ conn = sqlite3.connect(
     BASE_DIR / "app.db", check_same_thread=False, isolation_level=None
 )
 conn.row_factory = sqlite3.Row  # rows behave like dicts: row["title"]
+# Unicode-aware lower() for case-insensitive search (SQLite's own is ASCII-only)
+conn.create_function("pylower", 1, lambda s: s.lower() if s else s, deterministic=True)
 conn.executescript(_SCHEMA)
 
 
