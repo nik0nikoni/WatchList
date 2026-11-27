@@ -71,9 +71,7 @@ class LibraryModel extends ChangeNotifier {
   Future<String?> update(WatchEntry entry) async {
     switch (await _repository.update(entry)) {
       case Ok(:final value):
-        _entries = [
-          for (final e in _entries) e.id == value.id ? value : e,
-        ];
+        _entries = [for (final e in _entries) e.id == value.id ? value : e];
         notifyListeners();
         return null;
       case Err(:final msg):

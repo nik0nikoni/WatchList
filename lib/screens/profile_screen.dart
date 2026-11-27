@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
+import '../data/auth_api.dart';
 import '../data/mock_watch_entry_repository.dart';
 import '../data/watch_entry.dart';
 import '../models/library_model.dart';
@@ -98,7 +99,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
       ),
     );
     // после await context используется только если экран ещё жив
-    if (ok == true && context.mounted) {
+    if (ok != true || !context.mounted) return;
+    await context.read<AuthApi>().logout(); // token стёрт из prefs (C9)
+    if (context.mounted) {
       context.go('/login'); // go: раздел с вкладками уходит из стека
     }
   }

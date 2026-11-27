@@ -29,59 +29,60 @@ GoRoute _entryRoute() => GoRoute(
   ],
 );
 
-final router = GoRouter(
-  initialLocation: '/login', // приложение стартует с аутентификации
-  routes: [
-    GoRoute(
-      path: '/login', // ВНЕ shell-а: у login нет панели вкладок
-      builder: (context, state) => const LoginScreen(),
-    ),
-    StatefulShellRoute.indexedStack(
-      builder: (context, state, navigationShell) =>
-          AppShell(navigationShell: navigationShell),
-      branches: [
-        StatefulShellBranch(
-          routes: [
-            GoRoute(
-              path: '/home',
-              builder: (context, state) => const HomeScreen(),
-              routes: [_entryRoute()],
-            ),
-          ],
-        ),
-        StatefulShellBranch(
-          routes: [
-            GoRoute(
-              path: '/library',
-              builder: (context, state) => const LibraryScreen(),
-              routes: [
-                GoRoute(
-                  path: 'new', // ФИКСИРОВАННЫЙ сегмент — строго перед ':id'
-                  builder: (context, state) => const AddEntryScreen(),
-                ),
-                _entryRoute(),
-              ],
-            ),
-          ],
-        ),
-        StatefulShellBranch(
-          routes: [
-            GoRoute(
-              path: '/lists',
-              builder: (context, state) => const StatusListsScreen(),
-              routes: [_entryRoute()],
-            ),
-          ],
-        ),
-        StatefulShellBranch(
-          routes: [
-            GoRoute(
-              path: '/profile',
-              builder: (context, state) => const ProfileScreen(),
-            ),
-          ],
-        ),
-      ],
-    ),
-  ],
-);
+// Сам router строит main(): стартовый адрес решает token (поток C9),
+// а его чтение асинхронно. Маршруты L3 — без изменений
+late final GoRouter router;
+
+final appRoutes = <RouteBase>[
+  GoRoute(
+    path: '/login', // ВНЕ shell-а: у login нет панели вкладок
+    builder: (context, state) => const LoginScreen(),
+  ),
+  StatefulShellRoute.indexedStack(
+    builder: (context, state, navigationShell) =>
+        AppShell(navigationShell: navigationShell),
+    branches: [
+      StatefulShellBranch(
+        routes: [
+          GoRoute(
+            path: '/home',
+            builder: (context, state) => const HomeScreen(),
+            routes: [_entryRoute()],
+          ),
+        ],
+      ),
+      StatefulShellBranch(
+        routes: [
+          GoRoute(
+            path: '/library',
+            builder: (context, state) => const LibraryScreen(),
+            routes: [
+              GoRoute(
+                path: 'new', // ФИКСИРОВАННЫЙ сегмент — строго перед ':id'
+                builder: (context, state) => const AddEntryScreen(),
+              ),
+              _entryRoute(),
+            ],
+          ),
+        ],
+      ),
+      StatefulShellBranch(
+        routes: [
+          GoRoute(
+            path: '/lists',
+            builder: (context, state) => const StatusListsScreen(),
+            routes: [_entryRoute()],
+          ),
+        ],
+      ),
+      StatefulShellBranch(
+        routes: [
+          GoRoute(
+            path: '/profile',
+            builder: (context, state) => const ProfileScreen(),
+          ),
+        ],
+      ),
+    ],
+  ),
+];

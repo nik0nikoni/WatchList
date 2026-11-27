@@ -1,5 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:provider/provider.dart';
+
+import '../data/auth_api.dart';
+import '../data/result.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -12,21 +16,47 @@ class _LoginScreenState extends State<LoginScreen> {
   final _formKey = GlobalKey<FormState>();
   final _emailCtrl = TextEditingController();
   final _passwordCtrl = TextEditingController();
+  final _nameCtrl = TextEditingController(); // только в режиме регистрации
   bool _obscure = true;
+  bool _isRegister = false;
+  bool _busy = false; // запрос летит → кнопка погашена: двойной submit — bug
 
   @override
   void dispose() {
     _emailCtrl.dispose();
     _passwordCtrl.dispose();
+    _nameCtrl.dispose();
     super.dispose();
   }
 
-  void _submit() {
-    if (!_formKey.currentState!.validate()) return;
-    // L3: реальной проверки нет — любые валидные данные входят (backend — на L5)
-    context.go(
-      '/home',
-    ); // go, НЕ push: login уходит из стека, «назад» сюда не вернёт
+  // валидный submit бьёт по серверу: вердикт → навигация или SnackBar
+  Future<void> _submit() async {
+    if (_busy) return;
+    if (!_formKey.currentState!.validate()) return; // валидация L3, нетронута
+    final auth = context.read<AuthApi>();
+    setState(() => _busy = true);
+    final result = _isRegister
+        ? await auth.register(
+            _emailCtrl.text.trim(),
+            _passwordCtrl.text,
+            _nameCtrl.text.trim(),
+          )
+        : await auth.login(_emailCtrl.text.trim(), _passwordCtrl.text);
+    if (!mounted) return; // C8: экран может умереть, пока запрос летит
+    setState(() => _busy = false);
+    switch (result) {
+      case Ok():
+        // token сохранён; go, НЕ push: login уходит из стека
+        context.go('/home');
+      case Err(:final msg):
+        ScaffoldMessenger.of(context)
+            .showSnackBar(SnackBar(content: Text(msg)));
+    }
+  }
+
+  String? _validateName(String? value) {
+    if ((value?.trim() ?? '').isEmpty) return 'Введите имя';
+    return null;
   }
 
   String? _validateEmail(String? value) {
@@ -80,6 +110,19 @@ class _LoginScreenState extends State<LoginScreen> {
                     textAlign: TextAlign.center,
                   ),
                   const SizedBox(height: 32),
+                  if (_isRegister) ...[
+                    TextFormField(
+                      controller: _nameCtrl,
+                      textInputAction: TextInputAction.next,
+                      textCapitalization: TextCapitalization.words,
+                      decoration: const InputDecoration(
+                        labelText: 'Имя',
+                        prefixIcon: Icon(Icons.person_outline),
+                      ),
+                      validator: _validateName,
+                    ),
+                    const SizedBox(height: 16),
+                  ],
                   TextFormField(
                     controller: _emailCtrl,
                     keyboardType: TextInputType.emailAddress,
@@ -116,20 +159,25 @@ class _LoginScreenState extends State<LoginScreen> {
                   SizedBox(
                     width: double.infinity,
                     child: FilledButton(
-                      onPressed: _submit,
-                      child: const Text('Войти'),
+                      onPressed: _busy ? null : _submit,
+                      child: _busy
+                          ? const SizedBox.square(
+                              dimension: 20,
+                              child: CircularProgressIndicator(strokeWidth: 2),
+                            )
+                          : Text(_isRegister ? 'Зарегистрироваться' : 'Войти'),
                     ),
                   ),
                   const SizedBox(height: 8),
                   TextButton(
-                    onPressed: () => ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                        content: Text(
-                          'Регистрация появится вместе с backend-ом',
-                        ),
-                      ),
+                    onPressed: _busy
+                        ? null
+                        : () => setState(() => _isRegister = !_isRegister),
+                    child: Text(
+                      _isRegister
+                          ? 'Уже есть аккаунт? Войдите'
+                          : 'Нет аккаунта? Зарегистрируйтесь',
                     ),
-                    child: const Text('Нет аккаунта? Зарегистрируйтесь'),
                   ),
                 ],
               ),
