@@ -55,17 +55,14 @@ void main() {
     expect(model.byId(id), isNull);
   });
 
-  test(
-    'мутация при аварии возвращает сообщение и не трогает состояние',
-    () async {
-      await model.load();
-      final entry = model.entries.first;
-      repository.simulateError = true;
+  test('мутация при аварии возвращает сообщение и не трогает состояние', () async {
+    await model.load();
+    final entry = model.entries.first;
+    repository.simulateError = true;
 
-      expect(await model.remove(entry.id), isNotNull);
-      expect(model.byId(entry.id), isNotNull);
-    },
-  );
+    expect(await model.remove(entry.id), isNotNull);
+    expect(model.byId(entry.id), isNotNull);
+  });
 
   test('setStatus «Просмотрено» отмечает все эпизоды', () async {
     await model.load();
