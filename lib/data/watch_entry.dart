@@ -49,6 +49,7 @@ class WatchEntry {
   final int watchedEpisodes;
   final String note;
   final bool isFavorite;
+  final String? posterUrl; // L5: «/files/7» на своём сервере; null — градиент
 
   const WatchEntry({
     required this.id,
@@ -58,6 +59,7 @@ class WatchEntry {
     this.watchedEpisodes = 0,
     this.note = '',
     this.isFavorite = false,
+    this.posterUrl,
   });
 
   // --- граница JSON (L5): сервер хранит запись плоско, MediaTitle — внутри ---
@@ -77,6 +79,7 @@ class WatchEntry {
     watchedEpisodes: j['watchedEpisodes'] as int? ?? 0,
     note: j['note'] as String? ?? '',
     isFavorite: j['isFavorite'] as bool? ?? false,
+    posterUrl: j['posterUrl'] as String?,
   );
 
   // без id — идентичность даёт сервер (C8); enum-ы уходят по имени
@@ -92,6 +95,7 @@ class WatchEntry {
     'watchedEpisodes': watchedEpisodes,
     'note': note,
     'isFavorite': isFavorite,
+    'posterUrl': posterUrl,
   };
 
   // неизвестное имя enum-а — тело вне контракта: FormatException, как у
@@ -115,5 +119,6 @@ class WatchEntry {
     watchedEpisodes: watchedEpisodes ?? this.watchedEpisodes,
     note: note,
     isFavorite: isFavorite ?? this.isFavorite,
+    posterUrl: posterUrl,
   );
 }

@@ -33,7 +33,11 @@ class TitleCard extends StatelessWidget {
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              PosterPlaceholder(type: media.type, name: media.name),
+              PosterPlaceholder(
+                type: media.type,
+                name: media.name,
+                posterUrl: entry.posterUrl,
+              ),
               const SizedBox(width: 14),
               Expanded(
                 child: Column(

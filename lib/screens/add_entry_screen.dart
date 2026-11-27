@@ -1,11 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
 
+import '../data/file_api.dart';
+import '../data/result.dart';
 import '../data/watch_entry.dart';
 import '../models/library_model.dart';
 import '../widgets/error_view.dart';
+import '../widgets/poster_placeholder.dart';
 
 class AddEntryScreen extends StatelessWidget {
   final int? id; // null — новая запись, иначе — редактирование записи с этим id
@@ -63,6 +67,8 @@ class _EntryFormState extends State<_EntryForm> {
   int? _rating;
   bool _favorite = false;
   bool _saving = false; // пока «запрос» летит, повторный submit заблокирован
+  String? _posterUrl; // L5: путь файла на сервере после POST /files
+  bool _uploading = false;
 
   bool get _isEdit => widget.initial != null;
 
@@ -83,6 +89,29 @@ class _EntryFormState extends State<_EntryForm> {
       _status = entry.status;
       _rating = entry.myRating;
       _favorite = entry.isFavorite;
+      _posterUrl = entry.posterUrl;
+    }
+  }
+
+  // галерея → POST /files → url запоминается и уйдёт с записью при сохранении
+  Future<void> _pickPoster() async {
+    final file = await ImagePicker().pickImage(
+      source: ImageSource.gallery,
+      maxWidth: 800, // постеру хватит; заодно держимся под лимитом 5 МБ
+      imageQuality: 85,
+    );
+    if (file == null || !mounted) return; // пользователь передумал
+    final files = context.read<FileApi>();
+    setState(() => _uploading = true);
+    final result = await files.upload(file.path);
+    if (!mounted) return;
+    setState(() => _uploading = false);
+    switch (result) {
+      case Ok(:final value):
+        setState(() => _posterUrl = value);
+      case Err(:final msg):
+        ScaffoldMessenger.of(context)
+            .showSnackBar(SnackBar(content: Text(msg)));
     }
   }
 
@@ -120,6 +149,7 @@ class _EntryFormState extends State<_EntryForm> {
       watchedEpisodes: int.tryParse(_watchedCtrl.text) ?? 0,
       note: _noteCtrl.text.trim(),
       isFavorite: _favorite,
+      posterUrl: _posterUrl,
     );
 
     setState(() => _saving = true);
@@ -210,6 +240,51 @@ class _EntryFormState extends State<_EntryForm> {
         child: ListView(
           padding: const EdgeInsets.all(16),
           children: [
+            Row(
+              children: [
+                // превью: тот же виджет, что в списке — постер или градиент
+                ListenableBuilder(
+                  listenable: _titleCtrl,
+                  builder: (context, _) => PosterPlaceholder(
+                    type: _type,
+                    name: _titleCtrl.text,
+                    posterUrl: _posterUrl,
+                  ),
+                ),
+                const SizedBox(width: 16),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      OutlinedButton.icon(
+                        onPressed: _uploading || _saving ? null : _pickPoster,
+                        icon: _uploading
+                            ? const SizedBox.square(
+                                dimension: 18,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                ),
+                              )
+                            : const Icon(Icons.image_outlined),
+                        label: Text(
+                          _posterUrl == null
+                              ? 'Выбрать постер'
+                              : 'Заменить постер',
+                        ),
+                      ),
+                      if (_posterUrl != null)
+                        TextButton(
+                          onPressed: _uploading || _saving
+                              ? null
+                              : () => setState(() => _posterUrl = null),
+                          child: const Text('Убрать постер'),
+                        ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 20),
             TextFormField(
               controller: _titleCtrl,
               textInputAction: TextInputAction.next,
@@ -333,7 +408,7 @@ class _EntryFormState extends State<_EntryForm> {
             ),
             const SizedBox(height: 16),
             FilledButton(
-              onPressed: _saving ? null : _save,
+              onPressed: _saving || _uploading ? null : _save,
               child: _saving
                   ? const SizedBox.square(
                       dimension: 22,

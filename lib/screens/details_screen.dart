@@ -126,6 +126,7 @@ class DetailsScreen extends StatelessWidget {
             child: PosterPlaceholder(
               type: media.type,
               name: media.name,
+              posterUrl: entry.posterUrl,
               width: 160,
               height: 230,
             ),

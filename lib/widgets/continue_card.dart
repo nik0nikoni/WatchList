@@ -25,6 +25,7 @@ class ContinueCard extends StatelessWidget {
             PosterPlaceholder(
               type: media.type,
               name: media.name,
+              posterUrl: entry.posterUrl,
               width: 140,
               height: 100,
             ),

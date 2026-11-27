@@ -1,20 +1,15 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
+import 'data/api_base.dart';
 import 'data/auth_api.dart';
+import 'data/file_api.dart';
 import 'data/http_watch_entry_repository.dart';
 import 'data/token_store.dart';
 import 'models/library_model.dart';
 import 'router.dart';
 import 'theme.dart';
-
-// Сервер на ноутбуке: эмулятор Android не знает «localhost» — для него это
-// 10.0.2.2; на десктопе и в браузере — localhost; на телефоне — IP ноутбука
-final apiBase = !kIsWeb && defaultTargetPlatform == TargetPlatform.android
-    ? 'http://10.0.2.2:8080'
-    : 'http://localhost:8080';
 
 // Корень композиции: ЗДЕСЬ (и только здесь) выбирается источник данных
 Future<void> main() async {
@@ -38,6 +33,13 @@ Future<void> main() async {
     MultiProvider(
       providers: [
         Provider<AuthApi>(create: (_) => AuthApi(apiBase, tokens)),
+        Provider<FileApi>(
+          create: (_) => FileApi(
+            apiBase,
+            tokens,
+            onUnauthorized: () => router.go('/login'),
+          ),
+        ),
         ChangeNotifierProvider(
           create: (_) => LibraryModel(repository)..load(), // DI + старт
         ),

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../data/api_base.dart';
 import '../data/watch_entry.dart';
 
 class PosterPlaceholder extends StatelessWidget {
@@ -7,6 +8,7 @@ class PosterPlaceholder extends StatelessWidget {
   final String name; // от названия зависит цвет: у каждого тайтла свой постер
   final double width;
   final double height;
+  final String? posterUrl; // L5: загруженный постер; нет его — градиент
 
   const PosterPlaceholder({
     super.key,
@@ -14,6 +16,7 @@ class PosterPlaceholder extends StatelessWidget {
     required this.name,
     this.width = 72,
     this.height = 104,
+    this.posterUrl,
   });
 
   IconData get _icon => switch (type) {
@@ -24,6 +27,23 @@ class PosterPlaceholder extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final url = posterUrl;
+    if (url == null) return _gradient();
+    // GET /files/{id} публичен — Image.network обходится без token-а
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(width * 0.16),
+      child: Image.network(
+        '$apiBase$url',
+        width: width,
+        height: height,
+        fit: BoxFit.cover,
+        // сервер остановлен или файл пропал — постер не ломает карточку
+        errorBuilder: (_, _, _) => _gradient(),
+      ),
+    );
+  }
+
+  Widget _gradient() {
     // стабильный оттенок из названия: одна и та же запись — всегда один цвет
     final hue = name.codeUnits.fold(0, (sum, c) => sum + c * 31) % 360;
     final top = HSLColor.fromAHSL(1, hue.toDouble(), 0.55, 0.42).toColor();
