@@ -1,15 +1,16 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:watch_list/data/mock_watch_entry_repository.dart';
 import 'package:watch_list/data/watch_entry.dart';
 import 'package:watch_list/models/library_model.dart';
 
+import 'fake_watch_entry_repository.dart';
+
 // Модель — чистый Dart: тестируется без единого widget-а
 void main() {
-  late MockWatchEntryRepository repository;
+  late FakeWatchEntryRepository repository;
   late LibraryModel model;
 
   setUp(() {
-    repository = MockWatchEntryRepository(latency: Duration.zero);
+    repository = FakeWatchEntryRepository();
     model = LibraryModel(repository);
   });
 

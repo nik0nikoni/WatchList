@@ -3,7 +3,6 @@ import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
 import '../data/auth_api.dart';
-import '../data/mock_watch_entry_repository.dart';
 import '../data/watch_entry.dart';
 import '../models/library_model.dart';
 import '../widgets/error_view.dart';
@@ -17,23 +16,6 @@ class ProfileScreen extends StatefulWidget {
 }
 
 class _ProfileScreenState extends State<ProfileScreen> {
-  // эфемерное состояние переключателя → setState, а не Provider
-  bool _simulateError = false;
-
-  @override
-  void initState() {
-    super.initState();
-    // read, а не watch: одно чтение при создании, подписка не нужна
-    _simulateError = context.read<MockWatchEntryRepository>().simulateError;
-  }
-
-  // леса демонстрации: единственное место UI, которое знает о mock-е —
-  // уйдёт на L5 вместе с ним
-  void _setSimulateError(bool value) {
-    context.read<MockWatchEntryRepository>().simulateError = value;
-    setState(() => _simulateError = value);
-  }
-
   Widget _buildStats(LibraryModel model) {
     if (model.isLoading) {
       return const Padding(
@@ -162,13 +144,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   leading: Icon(Icons.language),
                   title: Text('Язык'),
                   trailing: Text('Русский'),
-                ),
-                SwitchListTile(
-                  secondary: const Icon(Icons.cloud_off_outlined),
-                  title: const Text('Симулировать сбой сети'),
-                  subtitle: const Text('Демонстрация экрана ошибки'),
-                  value: _simulateError,
-                  onChanged: _setSimulateError,
                 ),
                 const ListTile(
                   leading: Icon(Icons.info_outline),

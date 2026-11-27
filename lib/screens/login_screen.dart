@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 
 import '../data/auth_api.dart';
 import '../data/result.dart';
+import '../models/library_model.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -46,6 +47,9 @@ class _LoginScreenState extends State<LoginScreen> {
     setState(() => _busy = false);
     switch (result) {
       case Ok():
+        // новый token — новые данные: после logout или 401 в модели остались
+        // чужие записи или «Сессия истекла»
+        context.read<LibraryModel>().load();
         // token сохранён; go, НЕ push: login уходит из стека
         context.go('/home');
       case Err(:final msg):

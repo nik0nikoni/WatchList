@@ -4,7 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
 import 'data/auth_api.dart';
-import 'data/mock_watch_entry_repository.dart';
+import 'data/http_watch_entry_repository.dart';
 import 'data/token_store.dart';
 import 'models/library_model.dart';
 import 'router.dart';
@@ -27,14 +27,17 @@ Future<void> main() async {
     routes: appRoutes,
   );
 
-  final repository = MockWatchEntryRepository(); // на L5: вариант http — и всё
+  // mock умер: источник данных — свой backend. Единственная строка выбора
+  final repository = HttpWatchEntryRepository(
+    apiBase,
+    tokens,
+    onUnauthorized: () => router.go('/login'), // 401 → login, в одном месте
+  );
 
   runApp(
     MultiProvider(
       providers: [
         Provider<AuthApi>(create: (_) => AuthApi(apiBase, tokens)),
-        // леса демонстрации аварии (переключатель в профиле) — уйдут на L5
-        Provider<MockWatchEntryRepository>.value(value: repository),
         ChangeNotifierProvider(
           create: (_) => LibraryModel(repository)..load(), // DI + старт
         ),

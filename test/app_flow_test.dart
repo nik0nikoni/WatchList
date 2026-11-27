@@ -3,12 +3,13 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:watch_list/data/auth_api.dart';
-import 'package:watch_list/data/mock_watch_entry_repository.dart';
 import 'package:watch_list/data/result.dart';
 import 'package:watch_list/data/token_store.dart';
 import 'package:watch_list/main.dart';
 import 'package:watch_list/models/library_model.dart';
 import 'package:watch_list/router.dart';
+
+import 'fake_watch_entry_repository.dart';
 
 // В тестах сети нет: вход подменяется — пароль 'secret1' верный, иной нет
 class _FakeAuthApi extends AuthApi {
@@ -26,12 +27,13 @@ void main() {
     tester,
   ) async {
     router = GoRouter(initialLocation: '/login', routes: appRoutes);
-    final repository = MockWatchEntryRepository();
+    final repository = FakeWatchEntryRepository(
+      latency: const Duration(milliseconds: 800),
+    );
     await tester.pumpWidget(
       MultiProvider(
         providers: [
           Provider<AuthApi>.value(value: _FakeAuthApi()),
-          Provider<MockWatchEntryRepository>.value(value: repository),
           ChangeNotifierProvider(
             create: (_) => LibraryModel(repository)..load(),
           ),
