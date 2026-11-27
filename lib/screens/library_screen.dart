@@ -17,17 +17,43 @@ class LibraryScreen extends StatefulWidget {
 class _LibraryScreenState extends State<LibraryScreen> {
   // эфемерное состояние экрана — setState, а не Provider:
   // его не читает никто, кроме этого экрана
-  String _query = '';
   TitleType? _type; // null — «Все»
   bool _favoritesOnly = false;
 
+  // L5: поиск по названию ушёл на сервер (LibraryModel.load(search:));
+  // чипы типа и избранного фильтруют уже загруженные ломти
   List<WatchEntry> _filter(List<WatchEntry> entries) {
-    final query = _query.trim().toLowerCase();
     return entries.where((e) {
       if (_type != null && e.media.type != _type) return false;
       if (_favoritesOnly && !e.isFavorite) return false;
-      return query.isEmpty || e.media.name.toLowerCase().contains(query);
+      return true;
     }).toList();
+  }
+
+  // хвост списка: просит следующий ломоть и показывает маленький spinner;
+  // read, а не watch — это действие, а не подписка
+  Widget _buildTail(LibraryModel model) {
+    if (model.loadMoreError != null) {
+      return Column(
+        children: [
+          Text(model.loadMoreError!, textAlign: TextAlign.center),
+          TextButton(
+            onPressed: () => context.read<LibraryModel>().retryMore(),
+            child: const Text('Повторить'),
+          ),
+        ],
+      );
+    }
+    context.read<LibraryModel>().loadMore();
+    return const Padding(
+      padding: EdgeInsets.all(12),
+      child: Center(
+        child: SizedBox.square(
+          dimension: 24,
+          child: CircularProgressIndicator(strokeWidth: 2),
+        ),
+      ),
+    );
   }
 
   // свайп → подтверждение → удаление через модель; false — карточка остаётся
@@ -65,16 +91,18 @@ class _LibraryScreenState extends State<LibraryScreen> {
     onSelected: (_) => setState(() => _type = type),
   );
 
-  Widget _buildList(List<WatchEntry> entries) {
-    final visible = _filter(entries);
-    if (visible.isEmpty) {
+  Widget _buildList(LibraryModel model) {
+    final visible = _filter(model.entries);
+    if (visible.isEmpty && !model.hasMore) {
       return const Center(child: Text('Ничего не найдено'));
     }
+    final hasTail = model.hasMore || model.loadMoreError != null;
     return ListView.separated(
       padding: const EdgeInsets.all(16),
-      itemCount: visible.length,
+      itemCount: visible.length + (hasTail ? 1 : 0),
       separatorBuilder: (_, _) => const SizedBox(height: 8),
       itemBuilder: (context, index) {
+        if (index == visible.length) return _buildTail(model);
         final entry = visible[index];
         return Dismissible(
           key: ValueKey(entry.id), // идентичность из данных, не UniqueKey
@@ -114,7 +142,7 @@ class _LibraryScreenState extends State<LibraryScreen> {
         onRetry: () => context.read<LibraryModel>().load(), // read: действие
       );
     } else {
-      body = _buildList(model.entries); // 3) данные
+      body = _buildList(model); // 3) данные
     }
 
     return Scaffold(
@@ -149,9 +177,11 @@ class _LibraryScreenState extends State<LibraryScreen> {
           Padding(
             padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
             child: SearchBar(
-              hintText: 'Поиск по названию',
+              hintText: 'Поиск по названию или жанру',
               leading: const Icon(Icons.search),
-              onChanged: (value) => setState(() => _query = value),
+              // Enter → запрос на сервер; пустая строка сбрасывает поиск
+              onSubmitted: (q) =>
+                  context.read<LibraryModel>().load(search: q.trim()),
             ),
           ),
           SizedBox(

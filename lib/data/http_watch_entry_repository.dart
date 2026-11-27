@@ -65,8 +65,22 @@ class HttpWatchEntryRepository implements WatchEntryRepository {
       WatchEntry.fromJson(jsonDecode(res.body) as Map<String, dynamic>);
 
   @override
-  Future<Result<List<WatchEntry>>> fetchAll() => _call(
-    () async => http.get(_uri('/entries'), headers: await _headers()),
+  Future<Result<List<WatchEntry>>> fetchAll({
+    int page = 1,
+    int limit = 20,
+    String? search,
+  }) => _call(
+    () async => http.get(
+      // адрес получает query params; поиск идёт НА СЕРВЕРЕ
+      _uri('/entries').replace(
+        queryParameters: {
+          'page': '$page',
+          'limit': '$limit',
+          if (search != null && search.isNotEmpty) 'search': search,
+        },
+      ),
+      headers: await _headers(),
+    ),
     200,
     (res) {
       final data = jsonDecode(res.body) as Map<String, dynamic>; // конверт!

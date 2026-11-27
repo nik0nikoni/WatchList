@@ -75,4 +75,79 @@ void main() {
     expect(updated.status, WatchStatus.completed);
     expect(updated.watchedEpisodes, entry.media.episodes);
   });
+
+  // --- L5: поиск и ломти ---
+
+  List<WatchEntry> many(int n) => [
+    for (var i = 1; i <= n; i++)
+      WatchEntry(
+        id: i,
+        media: MediaTitle(
+          name: i.isEven ? 'Сериал $i' : 'Фильм $i',
+          type: TitleType.movie,
+          year: 2000,
+          genres: '',
+          description: '',
+          episodes: 1,
+        ),
+        status: WatchStatus.planned,
+      ),
+  ];
+
+  test('loadMore приклеивает следующий ломоть, пока страница полная', () async {
+    repository = FakeWatchEntryRepository(seed: many(25));
+    model = LibraryModel(repository);
+
+    await model.load();
+    expect(model.entries.length, 20);
+    expect(model.hasMore, isTrue);
+
+    await model.loadMore();
+    expect(model.entries.length, 25);
+    expect(model.hasMore, isFalse);
+  });
+
+  test('loadMore с guard-ом: параллельные вызовы — один запрос', () async {
+    repository = FakeWatchEntryRepository(seed: many(25));
+    model = LibraryModel(repository);
+    await model.load();
+    final before = repository.fetchCalls;
+
+    await Future.wait([model.loadMore(), model.loadMore(), model.loadMore()]);
+
+    expect(repository.fetchCalls, before + 1);
+    expect(model.entries.length, 25); // без дублированных страниц
+  });
+
+  test('search идёт в хранилище, retry сохраняет фильтр', () async {
+    repository = FakeWatchEntryRepository(seed: many(25));
+    model = LibraryModel(repository);
+
+    await model.load(search: 'сериал');
+    expect(model.entries.length, 12);
+    expect(model.entries.every((e) => e.media.name.startsWith('Сериал')), isTrue);
+
+    await model.load(); // «Повторить»
+    expect(model.search, 'сериал');
+    expect(model.entries.length, 12);
+
+    await model.load(search: ''); // сброс
+    expect(model.entries.length, 20);
+  });
+
+  test('ошибка догрузки: загруженное остаётся, retryMore догружает', () async {
+    repository = FakeWatchEntryRepository(seed: many(25));
+    model = LibraryModel(repository);
+    await model.load();
+
+    repository.simulateError = true;
+    await model.loadMore();
+    expect(model.loadMoreError, isNotNull);
+    expect(model.entries.length, 20);
+
+    repository.simulateError = false;
+    await model.retryMore();
+    expect(model.loadMoreError, isNull);
+    expect(model.entries.length, 25);
+  });
 }

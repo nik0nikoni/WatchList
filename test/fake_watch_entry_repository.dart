@@ -5,10 +5,14 @@ import 'package:watch_list/data/watch_entry_repository.dart';
 // Тестовый дублёр интерфейса L4: mock из приложения умер на L5, но модели
 // и сквозному тесту по-прежнему нужен источник без сети — живёт в test/
 class FakeWatchEntryRepository implements WatchEntryRepository {
-  FakeWatchEntryRepository({this.latency = Duration.zero});
+  FakeWatchEntryRepository({
+    this.latency = Duration.zero,
+    List<WatchEntry> seed = _seed,
+  }) : _entries = List.of(seed);
 
   final Duration latency;
-  final List<WatchEntry> _entries = List.of(_seed);
+  final List<WatchEntry> _entries;
+  int fetchCalls = 0; // сколько ломтей попросили — ловит дублирующие запросы
   int _nextId = 1000;
   bool simulateError = false; // авария: включена → любой вызов проваливается
 
@@ -21,9 +25,19 @@ class FakeWatchEntryRepository implements WatchEntryRepository {
   }
 
   @override
-  Future<Result<List<WatchEntry>>> fetchAll() async {
+  Future<Result<List<WatchEntry>>> fetchAll({
+    int page = 1,
+    int limit = 20,
+    String? search,
+  }) async {
+    fetchCalls++;
     if (await _fails()) return const Err(_errNetwork);
-    return Ok(List.of(_entries));
+    // как сервер: фильтр по названию, затем ломоть page/limit
+    final query = (search ?? '').toLowerCase();
+    final found = _entries
+        .where((e) => e.media.name.toLowerCase().contains(query))
+        .toList();
+    return Ok(found.skip((page - 1) * limit).take(limit).toList());
   }
 
   @override

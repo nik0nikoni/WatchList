@@ -49,7 +49,7 @@ class _LoginScreenState extends State<LoginScreen> {
       case Ok():
         // новый token — новые данные: после logout или 401 в модели остались
         // чужие записи или «Сессия истекла»
-        context.read<LibraryModel>().load();
+        context.read<LibraryModel>().load(search: '');
         // token сохранён; go, НЕ push: login уходит из стека
         context.go('/home');
       case Err(:final msg):
